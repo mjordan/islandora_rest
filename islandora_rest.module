@@ -13,6 +13,7 @@ define('ISLANDORA_REST_OBJECT_MENU', ISLANDORA_REST_URL_PREFIX . '/object');
 define('ISLANDORA_REST_DATASTREAM_MENU', ISLANDORA_REST_OBJECT_MENU . '/%/datastream');
 define('ISLANDORA_REST_DATASTREAM_TOKEN_MENU', ISLANDORA_REST_DATASTREAM_MENU . '/%/token');
 define('ISLANDORA_REST_RELATIONSHIP_MENU', ISLANDORA_REST_OBJECT_MENU . '/%/relationship');
+define('ISLANDORA_REST_EXPORT_MENU', ISLANDORA_REST_OBJECT_MENU . '/%/export');
 define('ISLANDORA_REST_SOLR_MENU', ISLANDORA_REST_URL_PREFIX . '/solr');
 
 // Permissions.
@@ -55,6 +56,12 @@ function islandora_rest_menu() {
     ),
     ISLANDORA_REST_RELATIONSHIP_MENU => array(
       'page callback' => 'islandora_rest_relationship',
+      'page arguments' => array(4),
+      'access callback' => TRUE,
+      'type' => MENU_CALLBACK,
+    ),
+    ISLANDORA_REST_EXPORT_MENU => array(
+      'page callback' => 'islandora_rest_export',
       'page arguments' => array(4),
       'access callback' => TRUE,
       'type' => MENU_CALLBACK,
@@ -186,6 +193,17 @@ function islandora_rest_datastream_token($pid, $dsid) {
 function islandora_rest_relationship($pid) {
   module_load_include('inc', 'islandora_rest', 'includes/utilities');
   print islandora_rest_get_response('relationship', array('pid' => $pid));
+  exit();
+}
+
+/**
+ * Rest end-point for object export.
+ *
+ * @note This function exits.
+ */
+function islandora_rest_export($pid) {
+  module_load_include('inc', 'islandora_rest', 'includes/utilities');
+  print islandora_rest_get_response('export', array('pid' => $pid));
   exit();
 }
 
