@@ -193,7 +193,7 @@ function islandora_rest_resource_access_permission($endpoint, $request_method) {
       'DELETE' => ISLANDORA_REST_RELATIONSHIP_DELETE_PERM,
     ),
     'export' => array(
-      'GET' => ISLANDORA_REST_OBJECT_GET_PERM,
+      'GET' => ISLANDORA_REST_OBJECT_EXPORT_PERM,
     ),
   );
   return $perm_map[$endpoint][$request_method];
