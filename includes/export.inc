@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Generate responses for the object 'export' rest end point.
+ * Generate response for the object 'export' REST endpoint.
  */
 
 /**
@@ -16,7 +16,7 @@
  *   https://wiki.duraspace.org/display/FEDORA38/REST+API#RESTAPI-export
  *   for more detail.
  *   - resource: The object to generate the response for.
- *   - request: The request parameters
+ *   - request: The request parameters:
  *     - format: The format of the exported XML. Must be one of the keys
  *       in $formats, below (required).
  *     - context: The context of the exported XML. Must be one of 'public',
@@ -41,32 +41,47 @@ function islandora_rest_export_get_response(array $parameters) {
     'ATOMZip-1.1' => 'info:fedora/fedora-system:ATOMZip-1.1',
   );
 
-  // Switch to user 1 so we have access to export. Only users who have
-  // ISLANDORA_REST_OBJECT_EXPORT_PERM make it this far.
-  $user = user_load(1);
-  drupal_static_reset('islandora_get_tuque_connection');
-  $fedora_url = variable_get('islandora_base_url', 'http://localhost:8080/fedora');
-  $connection = islandora_get_tuque_connection($user, $fedora_url);
-  $foxml = $connection->api->m->export($object->id,
-    array(
-      'format' => $formats[$format],
-      'context' => $context,
-      'encoding' => $encoding,
-    )
-  );
-  islandora_rest_xml_download($foxml, $encoding);
+  // Impersonate user 1 so we have access to export. Only users who have
+  // ISLANDORA_REST_OBJECT_EXPORT_PERM make it this far but we should
+  // check again before loading user 1.
+  if (user_access(ISLANDORA_REST_OBJECT_EXPORT_PERM)) {
+    $user = user_load(1);
+    drupal_static_reset('islandora_get_tuque_connection');
+    $fedora_url = variable_get('islandora_base_url', 'http://localhost:8080/fedora');
+    $connection = islandora_get_tuque_connection($user, $fedora_url);
+    $foxml = $connection->api->m->export($object->id,
+      array(
+        'format' => $formats[$format],
+        'context' => $context,
+        'encoding' => $encoding,
+      )
+    );
+    islandora_rest_xml_download($foxml, $encoding, $format);
+  }
+  else {
+    throw new Exception('Unauthorized', 401);
+  }
 }
 
 /**
- * Download the output as XML.
+ * Download the output.
  *
  * @param string $output
- *   The content to download.
+ *   The content to download. Will be either serialized XML or a Zip file.
+ * @param string $encoding
+ *   The encoding applied to the XML output.
+ * @param string $format
+ *   The export format, e.g. 'FOXML-1.1'.
  */
-function islandora_rest_xml_download($output, $encoding = 'utf8') {
-  drupal_add_http_header('Content-type', 'text/xml;charset=' . $encoding);
+function islandora_rest_xml_download($output, $encoding, $format) {
+  if ($format == 'ATOMZip-1.1') {
+    drupal_add_http_header('Content-type', 'application/x-zip');
+  }
+  else {
+    drupal_add_http_header('Content-type', 'text/xml;charset=' . $encoding);
+  }
   drupal_add_http_header('Content-length', strlen($output));
-  drupal_add_http_header('Content-Disposition', 'attachment; filename="export.xml"');
+  drupal_add_http_header('Content-Disposition', 'attachment');
   print $output;
   drupal_page_footer();
 }
