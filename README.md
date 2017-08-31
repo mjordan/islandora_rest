@@ -14,6 +14,7 @@ CONTENTS OF THIS FILE
    * [Authorization](#authorization)
    * [Describe An Existing Object](#describe-an-existing-object)
    * [Create A New Object](#create-a-new-object)
+   * [Export An Existing Object’s FOXML, METS, or Atom](#export-an-object)
    * [Modify An Existing Objects Properties](#modify-an-existing-objects-properties)
    * [Delete An Existing Object](#delete-an-existing-object)
    * [Search For Objects](#search-for-objects)
@@ -286,7 +287,28 @@ Accept: application/json
 ##### Content-Type: application/json
 Returns the same response as a [GET Object](#response-200-ok) request.
 
-## Modify An Existing Object’S Properties
+## Export An Existing Object’s FOXML, METS, or Atom
+
+#### URL syntax
+islandora/rest/v1/object/{pid}/export?[format][context][encoding, utf8]
+
+#### HTTP Method
+GET
+
+#### Get Variables
+| Name          | Description                                                  |
+| ------------- | ------------------------------------------------------------ |
+| pid           | Persistent identifier of the object.
+| format        | One of 'FOXML-1.1', 'FOXML-1.0', METSFedoraExt-1.1', 'METSFedoraExt-1.0', 'ATOM-1.1', or 'ATOMZip-1.1'.
+| context       | One of 'public', 'migrate', or 'archive'.
+| encoding      | The encoding of the returned XML (optional). Defaults to 'utf8'.
+
+#### Response: 200 OK
+##### Content-Type: text/xml
+
+The FOXML, METS, or Atom XML, as specified by the `format` value. If `format` is 'ATOMZip-1.1', Content-Type is `application/x-zip`.
+
+## Modify An Existing Object’s Properties
 
 #### URL syntax
 islandora/rest/v1/object/{pid}
