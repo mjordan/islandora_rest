@@ -41,15 +41,8 @@ function islandora_rest_export_get_response(array $parameters) {
     'ATOMZip-1.1' => 'info:fedora/fedora-system:ATOMZip-1.1',
   );
 
-  // Impersonate user 1 so we have access to export. Only users who have
-  // ISLANDORA_REST_OBJECT_EXPORT_PERM make it this far but we should
-  // check again before loading user 1.
   if (user_access(ISLANDORA_REST_OBJECT_EXPORT_PERM)) {
-    $user = user_load(1);
-    drupal_static_reset('islandora_get_tuque_connection');
-    $fedora_url = variable_get('islandora_base_url', 'http://localhost:8080/fedora');
-    $connection = islandora_get_tuque_connection($user, $fedora_url);
-    $foxml = $connection->api->m->export($object->id,
+    $foxml = $object->repository->api->m->export($object->id,
       array(
         'format' => $formats[$format],
         'context' => $context,
